@@ -16,7 +16,6 @@ import os
 # argparse - Parser for command-line options, arguments and sub-commands.
 import argparse
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
- 
 
 # Extensible Markup Language file for GTK Builder.
 MENU_XML = """
