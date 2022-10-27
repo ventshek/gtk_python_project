@@ -215,7 +215,7 @@ MENU_XML = """
                 </packing>
               </child>
               <child>
-                <object class="GtkButton" id="add-button">
+                <object class="GtkButton" id="add_button">
                   <property name="visible">True</property>
                   <property name="can-focus">True</property>
                   <property name="receives-default">True</property>
@@ -230,7 +230,7 @@ MENU_XML = """
                 </packing>
               </child>
               <child>
-                <object class="GtkButton" id="test-button">
+                <object class="GtkButton" id="minus_button">
                   <property name="visible">True</property>
                   <property name="can-focus">True</property>
                   <property name="receives-default">True</property>
@@ -386,6 +386,7 @@ CSS_File = b"""
       background-color: #2d2d2d;
   }
 """
+
 # Gobject VTE entry.
 GObject.type_register(Vte.Terminal)
 
@@ -400,7 +401,8 @@ file = args["file"]
 
 # GTK Settings.
 settings = Gtk.Settings.get_default()
-settings.set_property("gtk-application-prefer-dark-theme", True)
+settings.set_property("gtk-application-prefer-dark-theme", 
+                      True)
 screen = Gdk.Screen.get_default()
 provider = Gtk.CssProvider()
 provider.load_from_data(CSS_File)
@@ -426,18 +428,24 @@ class Handler:
     def onAddButtonClicked(self,button):
       mainnotebook.page = Gtk.Box()
       mainnotebook.page.set_border_width(0)
+      btn = Gtk.Button
       terminal1 = Vte.Terminal()
-      terminal1.spawn_sync(Vte.PtyFlags.DEFAULT,
-                           os.environ['HOME'],
-                           ["/bin/sh"],
-                           [],
-                           GLib.SpawnFlags.DO_NOT_REAP_CHILD,
-                           None,
-                           None,
-                           )
+      terminal1.spawn_async(Vte.PtyFlags.DEFAULT,
+                            os.environ['HOME'],
+                            ["/bin/bash"],
+                            None,
+                            GLib.SpawnFlags.DEFAULT,
+                            None, None,
+                            -1,
+                            None,
+                            None,
+                            None
+                            )
       mainnotebook.page.add(terminal1)
       mainnotebook.page.set_child_packing(terminal1, True, True, 0, 0)
-      mainnotebook.append_page(mainnotebook.page, Gtk.Label(label="Terminal"))
+      mainnotebook.append_page(mainnotebook.page, 
+                               btn())
+      terminal1.set_cursor_shape(2)
       window.show_all()
       mainnotebook.set_current_page(-1)
       context = statusbar.get_context_id("statusbar")
@@ -451,6 +459,7 @@ window = builder.get_object("main-window")
 terminal = builder.get_object("terminal")
 statusbar = builder.get_object("status-bar")
 mainnotebook = builder.get_object("main-notebook")
+minusbutton = builder.get_object("minus_button")
 
 # Terminal spawn settings.
 terminal.spawn_sync(
@@ -466,6 +475,7 @@ terminal.spawn_sync(
 # Initial window and terminal configs. 
 window.set_default_size(700, 400)
 terminal.set_font_scale(1.05)
+terminal.set_cursor_shape(2)
 
 # Opends the file specified in -f command line option if provided.
 if (file != ""):
